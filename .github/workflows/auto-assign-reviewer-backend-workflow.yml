@@ -1,5 +1,5 @@
 
-name: Auto Assign Reviewer for help wanted PRs
+name: Auto Assign Reviewer for backend PRs
 
 on:
   pull_request:
@@ -18,7 +18,7 @@ jobs:
         script: |
           const reviewers = ["PawaraGunathilaka"];
           const labels = context.payload.pull_request.labels.map(label => label.name.toLowerCase());
-          if (labels.includes('help wanted')) {
+          if (labels.includes('backend')) {
             await github.rest.pulls.requestReviewers({
               owner: context.repo.owner,
               repo: context.repo.repo,
