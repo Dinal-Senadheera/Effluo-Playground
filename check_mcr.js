@@ -1,4 +1,4 @@
 y = 9
 z = 0
-let x = max(y,11)
+var x = max(y,10)
 console.log(x)
