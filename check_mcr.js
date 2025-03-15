@@ -1,4 +1,4 @@
-y = 9
-z = 0
-let x = max(y,10)
-console.log(x)
+y = 9;
+z = 12;
+let x = max(y, 13);
+console.log(x);
