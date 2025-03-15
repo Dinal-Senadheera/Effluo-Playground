@@ -1,343 +1,202 @@
-// import { useState } from 'react';
-// import Swal from 'sweetalert2';
-// import { useNavigate } from 'react-router-dom';
+import Room from '../models/RoomModel.js';
+import Booking from '../models/BookingModel.js';
+import Resource from '../models/ResourceModel.js';
+import moment from 'moment';
 
-// const GlaucomaUpload = ({ result }) => {
-//   const [file, setFile] = useState(null);
-//   const navigate = useNavigate();
-
-//   const handleFileChange = (e) => {
-//     const selectedFile = e.target.files[0];
-//     setFile(selectedFile);
-//   };
-
-//   const handleFundusDetection = async (image) => {
-//     const formData = new FormData();
-//     formData.append('image', image);
-
-//     const response = await fetch('/api/detect/fundus', {
-//       method: 'POST',
-//       body: formData,
-//     });
-
-//     console.log('submit');
-
-//     if (!response.ok) {
-//       alert('Error detecting fundus');
-//     } else {
-//       const data = await response.json();
-
-//       // Check if the image is detected as a fundus before sending it for glaucoma prediction
-//       if (data.is_fundus) {
-//         Swal.fire({
-//           title:'Fundus Detected',
-//           text: 'Uploaded image is a fundus',
-//           icon: 'success',
-//           showConfirmButton: false,
-//           timer: 2000,
-//           timerProgressBar: true
-//         })
-//         handleGlaucomaPrediction(image);
-//       } else {
-//         Swal.fire({
-//           title:'Try Again',
-//           text: 'Uploaded image is not a fundus',
-//           icon: 'error',
-//           showConfirmButton: false,
-//           timer: 2000,
-//           timerProgressBar: true
-//       })
-//       navigate(`/getstarted`);
-//       }
-//     }
-//   };
-
-//   const handleGlaucomaPrediction = async (image) => {
-//     const formData = new FormData();
-//     formData.append('image', image);
-
-//     const response = await fetch('/api/predict/glaucoma', {
-//       method: 'POST',
-//       body: formData,
-//     });
-
-//     if (!response.ok) {
-//       alert('Error predicting glaucoma');
-//     } else {
-//       const data = await response.json();
-//       result(data);
-//     }
-//   };
-
-//   const handleSubmit = () => {
-//     if (file) {
-//       handleFundusDetection(file);
-//     } else {
-//       alert('No file selected.');
-//     }
-//   };
-
-//   return (
-//     <div className=" p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 lg:w-[500px] md:w-[400px] w-[90vw]">
-//       <h4 className="mb-12 text-2xl font-semibold text-white flex justify-center">
-//         Glaucoma detection
-//       </h4>
-//       <div className="flex items-center justify-center min-w-min">
-//         <label
-//           htmlFor="dropzone-file"
-//           className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
-//         >
-//           <div className="flex flex-col items-center justify-center pt-5 pb-6">
-//             <svg
-//               className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
-//               aria-hidden="true"
-//               xmlns="http://www.w3.org/2000/svg"
-//               fill="none"
-//               viewBox="0 0 20 16"
-//             >
-//               <path
-//                 stroke="currentColor"
-//                 strokeLinecap="round"
-//                 strokeLinejoin="round"
-//                 strokeWidth="2"
-//                 d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-//               />
-//             </svg>
-//             <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-//               <span className="font-semibold">Click to upload</span> or drag and
-//               drop
-//             </p>
-//             <p className="text-xs text-gray-500 dark:text-gray-400">
-//               SVG, PNG, JPG or GIF (MAX. 800x400px)
-//             </p>
-//           </div>
-//           <input
-//             id="dropzone-file"
-//             type="file"
-//             className="hidden"
-//             onChange={handleFileChange}
-//           />
-//         </label>
-//       </div>
-
-//       <div className="flex justify-center">
-//         {file && (
-//           <div className="w-1/4 bg-white border border-gray-200 rounded-lg shadow m-12 p-5">
-//             {file && (
-//               <img
-//                 src={URL.createObjectURL(file)}
-//                 alt="Uploaded"
-//                 className="rounded-lg"
-//               />
-//             )}
-//           </div>
-//         )}
-//       </div>
-
-//       <div className="flex justify-center">
-//         {file && (
-//           <button
-//             type="submit"
-//             className="w-80 rounded-full bg-orange-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
-//             onClick={handleSubmit}
-//           >
-//             Submit
-//           </button>
-//         )}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default GlaucomaUpload;
-
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { allowedExtensions } from '../../utils/regex';
-import Swal from 'sweetalert2';
-
-const GlaucomaUpload = () => {
-  const [file, setFile] = useState(null);
-  const navigate = useNavigate();
-
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (!allowedExtensions.exec(selectedFile.name)) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Invalid image type',
-        text: 'Please upload a SVG, PNG, JPG or JPEG file',
-        confirmButtonColor: '#DC2626',
-      });
-    } else {
-      console.log('File selected:', selectedFile);
-      setFile(selectedFile);
+export const createBooking = async (req, res) => {
+  const { date, from, to, bookedItemCode, type, reason } = req.body;
+  const { _id: userId } = req.user;
+  try {
+    if (!date || !from || !to || !bookedItemCode || !type) {
+      throw Error('date, from, to, type, bookedItemCode are required');
     }
-  };
+    if (type.toLowerCase() !== 'room' && type.toLowerCase() !== 'resource') {
+      throw Error('type must be either "room" or "resource"');
+    }
 
-  const handleResponse = () => {
-    setFile(null);
-  };
+    let item;
+    if (type.toLowerCase() === 'room') {
+      item = await Room.findOne({ code: bookedItemCode });
+    } else if (type.toLowerCase() === 'resource') {
+      item = await Resource.findOne({ code: bookedItemCode });
+    }
+    if (!item) {
+      return res.status(404).json({ error: `${bookedItemCode} not found` });
+    }
 
-  const handleFundusDetection = async (image) => {
-    const formData = new FormData();
-    formData.append('image', image);
+    const convertedDate = moment(date).format('YYYY/MM/DD');
+    const convertedFrom = moment(`${date} ${from}`);
+    const convertedTo = moment(`${date} ${to}`);
 
-    const response = await fetch('/api/detect/fundus', {
-      method: 'POST',
-      body: formData,
+    const bookings = await Booking.find({
+      date: convertedDate,
+      bookedItem: item?._id,
     });
 
-    console.log('submit');
-
-    if (!response.ok) {
-      alert('Error detecting fundus');
-    } else {
-      const data = await response.json();
-
-      // Check if the image is detected as a fundus before sending it for glaucoma prediction
-      if (data.is_fundus) {
-        Swal.fire({
-          title: 'Fundus Detected',
-          text: 'Uploaded image is a fundus',
-          icon: 'success',
-          showConfirmButton: false,
-          timer: 2000,
-          timerProgressBar: true,
-        });
-        handleGlaucomaPrediction(image);
-      } else {
-        Swal.fire({
-          title: 'Try Again',
-          text: 'Uploaded image is not a fundus',
-          icon: 'error',
-          showConfirmButton: false,
-          timer: 2000,
-          timerProgressBar: true,
-        });
-        navigate(`/getstarted`);
+    for (const book of bookings) {
+      const alreadyBookedFrom = moment(book.from);
+      const alreadyBookedTo = moment(book.to);
+      if (
+        convertedFrom.isBetween(alreadyBookedFrom, alreadyBookedTo) ||
+        convertedTo.isBetween(alreadyBookedFrom, alreadyBookedTo) ||
+        alreadyBookedFrom.isBetween(convertedFrom, convertedTo) ||
+        alreadyBookedTo.isBetween(convertedFrom, convertedTo) ||
+        convertedFrom.isSame(alreadyBookedFrom) ||
+        convertedTo.isSame(alreadyBookedTo)
+      ) {
+        throw Error('Booking overlaps with existing booking');
       }
     }
-  };
 
-  const handleGlaucomaPrediction = async (image) => {
-    const formData = new FormData();
-    formData.append('image', image);
-
-    const response = await fetch('/api/predict/glaucoma', {
-      method: 'POST',
-      body: formData,
+    const booking = new Booking({
+      date: convertedDate,
+      from: convertedFrom,
+      to: convertedTo,
+      type,
+      bookedItem: item?._id,
+      reason,
+      createdBy: userId,
     });
-    if (!response.ok) {
-      alert('Error predicting glaucoma');
-      Swal.fire({
-        icon: 'error',
-        title: 'Error uploading file',
-        text: 'Please try again later',
-        confirmButtonColor: 'rgb(234 88 12)',
-      });
-    } else {
-      const temp = await response.json();
-      console.log('Response from server:', temp);
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Result : \n' + temp.result,
-        text: `Accuracy : ${temp.accuracy}% \n Please contact a doctor for further diagnosis`,
-        width: '50rem',
-        showDenyButton: true,
-        showCancelButton: true,
-        showConfirmButton: false,
-        denyButtonText: 'Re-upload',
-        cancelButtonText: 'Go to Dashboard',
-      }).then((result) => {
-        if (result.isDenied) {
-          handleResponse();
-        } else {
-          window.location.href = '/getstarted';
-        }
-      });
-    }
-  };
-
-  const handleSubmit = () => {
-    if (file) {
-      handleFundusDetection(file);
-    } else {
-      alert('No file selected.');
-    }
-  };
-
-  return (
-    <div className="justify-self-center w-7/12 p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 m-5">
-      <h4 className="mb-12 text-2xl font-semibold text-white flex justify-center">
-        Glaucoma detection
-      </h4>
-      <div className="flex items-center justify-center min-w-min">
-        <label
-          htmlFor="dropzone-file"
-          className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
-        >
-          <div className="flex flex-col items-center justify-center pt-5 pb-6">
-            <svg
-              className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 20 16"
-            >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-              />
-            </svg>
-            <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-              <span className="font-semibold">Click to upload</span> or drag and
-              drop
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              SVG, PNG, JPG or JPEG (MAX. 800x400px)
-            </p>
-          </div>
-          <input
-            id="dropzone-file"
-            type="file"
-            className="hidden"
-            onChange={handleFileChange}
-          />
-        </label>
-      </div>
-
-      <div className="flex justify-center">
-        {file && (
-          <div className=" bg-white border border-gray-200 rounded-lg shadow m-9 p-3">
-            {file && (
-              <img
-                src={URL.createObjectURL(file)}
-                alt="Uploaded"
-                className="rounded-lg w-80"
-              />
-            )}
-          </div>
-        )}
-      </div>
-
-      <div className="flex justify-center">
-        {file && (
-          <button
-            type="submit"
-            className="w-80 rounded-full bg-orange-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
-            onClick={handleSubmit}
-          >
-            Submit
-          </button>
-        )}
-      </div>
-    </div>
-  );
+    await booking.save();
+    res.status(200).json({ booking });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error: error.message });
+  }
 };
 
-export default GlaucomaUpload;
+export const deleteBooking = async (req, res) => {
+  const { id } = req.body;
+  const { _id: userId, userType } = req.user;
+
+  try {
+    if (!id) {
+      throw Error('id is required');
+    }
+    const booking = await Booking.findOne({ _id: id });
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+    if (booking.createdBy != userId && userType.toLowerCase() !== 'admin') {
+      return res.status(401).json({
+        error:
+          'Access Denied. Admin Level access required to perform this action',
+      });
+    }
+    await booking.deleteOne();
+    return res.status(200).json({ booking });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error: error.message });
+  }
+};
+
+export const updateBooking = async (req, res) => {
+  const { id, date, from, to, bookedItemCode, type, reason } = req.body;
+  const { _id: userId, userType } = req.user;
+  try {
+    if (!id) {
+      throw Error('id is required');
+    }
+    const booking = await Booking.findOne({ _id: id });
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+    if (booking.createdBy != userId && userType.toLowerCase() !== 'admin') {
+      return res.status(401).json({
+        error:
+          'Access Denied. Admin Level access required to perform this action',
+      });
+    }
+    if (date) {
+      booking.date = new Date(date);
+    }
+    if (from) {
+      const day = booking.date.toISOString().split('T')[0];
+      booking.from = new Date(`${day}T${from}`);
+    }
+    if (to) {
+      const day = booking.date.toISOString().split('T')[0];
+      booking.to = new Date(`${day}T${to}`);
+    }
+    if (bookedItemCode) {
+      let item = undefined;
+      if (type.toLowerCase() === 'room') {
+        item = await Room.findOne({ _id: bookedItemCode });
+      } else if (type.toLowerCase() === 'resource') {
+        item = await Resource.findOne({ _id: bookedItemCode });
+      }
+      if (!item) {
+        return res.status(404).json({ error: `${bookedItemCode} not found` });
+      }
+      booking.bookedItem = item._id;
+    }
+    if (type) {
+      booking.type = type;
+    }
+    if (reason) {
+      booking.reason = reason;
+    }
+    await booking.save();
+    res.status(200).json({ booking });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error: error.message });
+  }
+};
+
+export const getAllBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find();
+    if (!bookings) {
+      return res.status(404).json({ error: 'Bookings not found' });
+    }
+    return res.status(200).json({ bookings });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error: error.message });
+  }
+};
+
+export const getABooking = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const booking = await Booking.findOne({ _id: id });
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+    return res.status(200).json({ booking });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error: error.message });
+  }
+};
+
+export const getAllBookingsByDate = async (req, res) => {
+  const params = req.query;
+  try {
+    const convertedDate = params.date;
+    const bookings = await Booking.find({ date: convertedDate });
+    if (!bookings) {
+      return res.status(404).json({ error: 'Bookings not found' });
+    }
+    return res.status(200).json({ bookings });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error: error.message });
+  }
+};
+
+export const getAllBookingsByItem = async (req, res) => {
+  const { bookedItemCode } = req.params;
+  try {
+    const bookings = await Booking.find({ bookedItem: bookedItemCode });
+    if (!bookings) {
+      return res.status(404).json({ error: 'Bookings not found' });
+    }
+    return res.status(200).json({ bookings });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error: error.message });
+  }
+};
