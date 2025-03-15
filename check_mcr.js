@@ -1,4 +1,1 @@
-y = 9;
-z = 12;
-var x = max(y, 13);
-console.log(x);
+"y = 9\nz = 0\nvar x = max(y,10,10)\nvar y = max(y,10,10)\nvar x = max(y,10,10)}\nvar
