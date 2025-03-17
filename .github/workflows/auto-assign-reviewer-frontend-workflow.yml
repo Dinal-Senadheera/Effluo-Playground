@@ -12,11 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Assign PawaraGunathilaka as a reviewer
+    - name: Assign Navojith as a reviewer
       uses: actions/github-script@v6
       with:
         script: |
-          const reviewers = ["PawaraGunathilaka"];
+          const reviewers = ["Navojith"];
             const prCreator = context.payload.pull_request.user.login;
 
           // Skip assignment if the PR creator is in the reviewers list
