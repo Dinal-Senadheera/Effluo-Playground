@@ -16,7 +16,7 @@ jobs:
       uses: actions/github-script@v6
       with:
         script: |
-          const reviewers = ["Navojith"];
+          const reviewers = ["PawaraGunathilaka"];
             const prCreator = context.payload.pull_request.user.login;
 
           // Skip assignment if the PR creator is in the reviewers list
