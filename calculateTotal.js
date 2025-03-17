@@ -1,3 +1,4 @@
-function calculateTotal(price, tax) {
-  return price * (1 + tax);
+function calculateTotal(price, tax, discount = 0) {
+  price = price - discount;
+  return price + (price * tax);
 }
