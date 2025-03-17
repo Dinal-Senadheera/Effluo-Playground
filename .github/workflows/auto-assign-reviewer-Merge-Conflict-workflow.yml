@@ -1,0 +1,38 @@
+
+name: Auto Assign Reviewer for Merge Conflict PRs
+
+on:
+  pull_request:
+    types:
+      - labeled
+      - opened
+
+jobs:
+  assign-reviewer:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Assign PawaraGunathilaka as a reviewer
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const reviewers = ["PawaraGunathilaka"];
+            const prCreator = context.payload.pull_request.user.login;
+
+          // Skip assignment if the PR creator is in the reviewers list
+          if (reviewers.includes(prCreator)) {
+            console.log(`Skipping reviewer assignment as PR creator (${prCreator}) is in the reviewers list.`);
+            return;
+          }
+          const labels = context.payload.pull_request.labels.map(label => label.name.toLowerCase());
+          if (labels.includes('merge conflict')) {
+            await github.rest.pulls.requestReviewers({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              reviewers: reviewers,
+            });
+          } else {
+            console.log('No matching label found; skipping reviewer assignment.');
+          }
+  
