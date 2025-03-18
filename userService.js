@@ -15,6 +15,8 @@ class UserService {
     this.saltRounds = 10;
     this.tokenExpiry = '24h';
     this.userCache = new Map();
+    // Feature A: Added cache expiration time
+    this.cacheExpiry = 3600000; // 1 hour in milliseconds
   }
 
   /**
@@ -73,9 +75,10 @@ class UserService {
    */
   async getUserByUsername(username) {
     try {
-      // Check cache first
-      if (this.userCache.has(username)) {
-        return this.userCache.get(username);
+      // Feature A: Enhanced cache with expiration
+      const cachedUser = this.userCache.get(username);
+      if (cachedUser && (Date.now() - cachedUser.cachedAt < this.cacheExpiry)) {
+        return cachedUser.data;
       }
       
       // Fetch from API
@@ -85,9 +88,12 @@ class UserService {
       
       const user = response.data.find(u => u.username === username);
       
-      // Cache the result
+      // Cache the result with timestamp
       if (user) {
-        this.userCache.set(username, user);
+        this.userCache.set(username, {
+          data: user,
+          cachedAt: Date.now()
+        });
       }
       
       return user;
@@ -122,7 +128,10 @@ class UserService {
       logger.info(`User ${userData.username} created successfully`);
       
       // Cache the new user
-      this.userCache.set(user.username, response.data);
+      this.userCache.set(user.username, {
+        data: response.data,
+        cachedAt: Date.now()
+      });
       
       return {
         id: response.data.id,
