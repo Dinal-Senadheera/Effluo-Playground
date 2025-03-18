@@ -1,10 +1,10 @@
-function calculateTotal(items, taxRate) {
+function calculateTotal(items, discount) {
     let subtotal = items.reduce((sum, item) => sum + item.price, 0);
-    let tax = subtotal * taxRate;
-    return subtotal + tax;
+    let discountedTotal = subtotal - discount;
+    return discountedTotal;
 }
 
 let items = [{ name: "Book", price: 20 }, { name: "Pen", price: 5 }];
-let taxRate = 0.2;
+let discount = 5;
 
-console.log(calculateTotal(items, taxRate));
+console.log(calculateTotal(items, discount)); 
