@@ -108,6 +108,8 @@ class UserService {
    */
   async createUser(userData) {
     try {
+      this.validateUserData(userData);
+      
       // Hash password
       const passwordHash = await bcrypt.hash(userData.password, this.saltRounds);
       
@@ -140,6 +142,31 @@ class UserService {
     } catch (error) {
       logger.error(`Error creating user: ${error.message}`);
       throw new Error('Failed to create user');
+    }
+  }
+  
+  /**
+   * Validates user data before creation
+   * @param {Object} userData - User data to validate
+   * @throws {Error} If validation fails
+   */
+  validateUserData(userData) {
+    if (!userData.username || userData.username.length < 3) {
+      throw new Error('Username must be at least 3 characters long');
+    }
+    
+    if (!userData.email || !userData.email.includes('@')) {
+      throw new Error('Valid email is required');
+    }
+    
+    if (!userData.password || userData.password.length < 8) {
+      throw new Error('Password must be at least 8 characters long');
+    }
+    
+    // Check for allowed roles
+    const allowedRoles = ['user', 'admin', 'moderator'];
+    if (userData.role && !allowedRoles.includes(userData.role)) {
+      throw new Error(`Role must be one of: ${allowedRoles.join(', ')}`);
     }
   }
   
