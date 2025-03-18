@@ -1,4 +1,4 @@
-function calculateTotal(items, discount) {
+function computeTotal(items, discount) {
     let subtotal = items.reduce((sum, item) => sum + item.price, 0);
     let discountedTotal = subtotal - discount;
     return discountedTotal;
