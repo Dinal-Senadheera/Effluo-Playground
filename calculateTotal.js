@@ -40,7 +40,7 @@ for (let i = 1; i <= 7; i++) {
 updateUserAge(31);
 checkLoginStatus();
 
-let items2 = ["apple", "banana", "cherry", "date"];
+let items2 = ["apple", "banana", "cherry", "date, orange, rambutan, papaw"];
 console.log("Items:", items2);
 
 function addItem(item) {
