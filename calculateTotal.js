@@ -4,7 +4,7 @@ function calculateTotal(items, taxRate) {
     return subtotal + tax;
 }
 
-let items = [{ name: "Book", price: 20 }, { name: "Pen", price: 5 }];
+let items = [{ name: "Book", price: 20 }, { name: "Pen", price: 5 }, { name: "Notebook", price: 10 }];
 let taxRate = 0.1;
 
 console.log(calculateTotal(items, taxRate)); 
