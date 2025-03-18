@@ -5,6 +5,6 @@ function calculateTotal(items, taxRate) {
 }
 
 let items = [{ name: "Book", price: 20 }, { name: "Pen", price: 5 }];
-let taxRate = 0.1;
+let taxRate = 0.2;
 
-console.log(calculateTotal(items, taxRate)); 
+console.log(calculateTotal(items, taxRate));
