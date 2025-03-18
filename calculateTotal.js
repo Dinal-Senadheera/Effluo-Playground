@@ -7,4 +7,6 @@ function calculateTotal(items, discount) {
 let items = [{ name: "Book", price: 20 }, { name: "Pen", price: 5 }];
 let discount = 5;
 
+console.log("your total is:");
+
 console.log(calculateTotal(items, discount)); 
