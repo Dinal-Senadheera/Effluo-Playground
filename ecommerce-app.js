@@ -1,70 +1,47 @@
-// === USER MANAGEMENT ===
+// === Product Catalog ===
+const products = [
+  { id: 1, name: 'Laptop', price: 999, stock: 5 },
+  { id: 2, name: 'Phone', price: 699, stock: 10 }
+];
+
+// === User Database ===
 const users = [
-    { id: 1, name: 'Alice', tier: 'basic' },
-    { id: 2, name: 'Bob', tier: 'premium' }
-  ];
-  
-  function getUser(userId) {
-    return users.find(u => u.id === userId);
+  { id: 101, name: 'John', status: 'regular' },
+  { id: 102, name: 'Sarah', status: 'vip' }
+];
+
+// === Order Calculation ===
+function calculateTotal(items) {
+  return items.reduce((total, item) => {
+    const product = products.find(p => p.id === item.productId);
+    return total + (product.price * item.quantity);
+  }, 0);
+}
+
+function applyDiscount(total, discount) {
+  if (discount < 0 || discount > 0.3) {
+    throw new Error('Invalid discount rate');
   }
-  
-  // === INVENTORY SYSTEM ===
-  const inventory = [
-    { id: 101, name: 'Widget', price: 50, stock: 10 },
-    { id: 102, name: 'Gadget', price: 150, stock: 5 },
-    { id: 103, name: 'Thingy', price: 25, stock: 20 }
-  ];
-  
-  function getProduct(productId) {
-    return inventory.find(p => p.id === productId);
-  }
-  
-  // === PRICING ENGINE ===
-  function calculateSubtotal(items) {
-    return items.reduce((sum, item) => {
-      const product = getProduct(item.id);
-      return sum + (product.price * item.quantity);
-    }, 0);
-  }
-  
-  function applyDiscount(total, discountRate) {
-    if (discountRate < 0 || discountRate > 0.5) {
-      throw new Error('Invalid discount rate');
-    }
-    return total * (1 - discountRate);
-  }
-  
-  // === ORDER PROCESSING ===
-  function validateStock(items) {
-    items.forEach(item => {
-      const product = getProduct(item.id);
-      if (product.stock < item.quantity) {
-        throw new Error(`Insufficient stock for ${product.name}`);
-      }
-    });
-  }
-  
-  function processOrder(userId, items, discountRate = 0) {
-    const user = getUser(userId);
-    if (!user) throw new Error('User not found');
-    
-    validateStock(items);
-    const subtotal = calculateSubtotal(items);
-    const total = applyDiscount(subtotal, discountRate);
-    
-    items.forEach(item => {
-      const product = getProduct(item.id);
-      product.stock -= item.quantity;
-    });
-  
-    console.log(`Processed order for ${user.name}`);
-    console.log(`Total: $${total.toFixed(2)}`);
-    return total;
-  }
-  
-  // === UTILITIES ===
-  function formatCurrency(amount) {
-    return `$${amount.toFixed(2)}`;
-  }
-  
-  module.exports = { processOrder, getUser };
+  return total * (1 - discount);
+}
+
+// === Order Processing ===
+function processOrder(userId, items, discount = 0) {
+  const user = users.find(u => u.id === userId);
+  if (!user) throw new Error('User not found');
+
+  const subtotal = calculateTotal(items);
+  const total = applyDiscount(subtotal, discount);
+
+  items.forEach(item => {
+    const product = products.find(p => p.id === item.productId);
+    product.stock -= item.quantity;
+    if (product.stock < 0) throw new Error('Out of stock');
+  });
+
+  console.log(`Order complete for ${user.name}`);
+  console.log(`Total: $${total.toFixed(2)}`);
+  return total;
+}
+
+module.exports = { processOrder };
