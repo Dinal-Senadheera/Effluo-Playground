@@ -104,7 +104,6 @@ class UserService {
    */
   async createUser(userData) {
     try {
-      // Feature B: Added validation
       this.validateUserData(userData);
       
       // Hash password
@@ -140,7 +139,6 @@ class UserService {
   }
   
   /**
-   * Feature B: Added validation method
    * Validates user data before creation
    * @param {Object} userData - User data to validate
    * @throws {Error} If validation fails
