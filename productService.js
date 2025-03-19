@@ -183,6 +183,47 @@ class ProductService {
       throw new Error('Failed to update product');
     }
   }
+  
+  /**
+   * @param {Array} items - Array of items with productId and quantity
+   * @returns {Promise<Object>} Order total details
+   */
+  async calculateOrderTotal(items) {
+    let subtotal = 0;
+    let taxTotal = 0;
+    let itemDetails = [];
+    
+    // Calculate for each item
+    for (const item of items) {
+      const product = await this.getProductById(item.productId);
+      if (!product) {
+        throw new Error(`Product not found: ${item.productId}`);
+      }
+      
+      const itemPrice = product.price * item.quantity;
+      const itemTax = itemPrice * this.taxRate;
+      
+      subtotal += itemPrice;
+      taxTotal += itemTax;
+      
+      itemDetails.push({
+        productId: product.id,
+        name: product.name,
+        quantity: item.quantity,
+        price: product.price,
+        total: itemPrice + itemTax
+      });
+    }
+    
+    const finalTotal = subtotal + taxTotal;
+    
+    return {
+      items: itemDetails,
+      subtotal,
+      tax: taxTotal,
+      total: finalTotal
+    };
+  }
 }
 
 module.exports = new ProductService();
