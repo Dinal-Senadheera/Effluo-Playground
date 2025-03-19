@@ -844,7 +844,6 @@ function rectContainsPoint(rect, point) {
     point.y <= rect.bottom
   );
 }
-
 // Is the item allowed in the given location?
 function isItemAllowed(item, location) {
   if (typeof item.getAllowedLocations !== 'function') return true;
