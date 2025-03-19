@@ -596,25 +596,6 @@ module.exports = class Dock {
     return this.paneContainer.onDidDestroyPaneItem(callback);
   }
 
-  // Extended: Invoke the given callback when a text editor is added to the
-  // dock.
-  //
-  // * `callback` {Function} to be called when panes are added.
-  //   * `event` {Object} with the following keys:
-  //     * `textEditor` {TextEditor} that was added.
-  //     * `pane` {Pane} containing the added text editor.
-  //     * `index` {Number} indicating the index of the added text editor in its
-  //        pane.
-  //
-  // Returns a {Disposable} on which `.dispose()` can be called to unsubscribe.
-  onDidAddTextEditor(callback) {
-    return this.onDidAddPaneItem(({ item, pane, index }) => {
-      if (item instanceof TextEditor) {
-        callback({ textEditor: item, pane, index });
-      }
-    });
-  }
-
   /*
   Section: Pane Items
   */
@@ -637,7 +618,7 @@ module.exports = class Dock {
   //
   // Returns an {Array} of {TextEditor}s.
   getTextEditors() {
-    return this.getPaneItems().filter((item) => item instanceof TextEditor);
+    return this.paneContainer.getTextEditors();
   }
 
   // Essential: Get the active item if it is an {TextEditor}.
@@ -844,6 +825,7 @@ function rectContainsPoint(rect, point) {
     point.y <= rect.bottom
   );
 }
+
 // Is the item allowed in the given location?
 function isItemAllowed(item, location) {
   if (typeof item.getAllowedLocations !== 'function') return true;
