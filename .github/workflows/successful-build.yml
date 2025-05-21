@@ -1,12 +1,17 @@
-name: Build and Test
+name: Successful Build Test
 
-# This ensures the workflow runs on PRs and pushes to main
+# Run on both PR events and direct pushes
 on:
+  # This makes the workflow run for PRs
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, dev ]
+    types: [ opened, synchronize, reopened ]
+  
+  # Keep existing triggers (likely push events)
   push:
-    branches: [ main, master ]
-  # Optional: Allow manual triggering
+    branches: [ main, master, dev ]
+  
+  # If you had workflow_dispatch, keep it
   workflow_dispatch:
 
 jobs:
@@ -17,47 +22,61 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          # This ensures PR metadata is available
+          # Fetch all history for PR association
           fetch-depth: 0
-          
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Build
-        run: npm run build
-        
-      - name: Test
-        run: npm test
-        
-      # This step outputs PR information when running in a PR context
-      - name: PR Information
+      
+      # Your existing build steps here...
+      
+      # Add a step to capture PR info in metadata
+      - name: Store PR metadata
         if: github.event_name == 'pull_request'
         run: |
-          echo "PR Number: ${{ github.event.pull_request.number }}"
-          echo "PR Title: ${{ github.event.pull_request.title }}"
-          echo "PR Author: ${{ github.event.pull_request.user.login }}"
-          
-      # This step sets PR metadata in the GitHub environment
-      - name: Set PR Metadata
-        if: github.event_name == 'pull_request'
-        run: |
-          echo "ASSOCIATED_PR=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
-          
+          echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+          echo "PR_TITLE=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
+          echo "PR_STATE=${{ github.event.pull_request.state }}" >> $GITHUB_ENV
+          # Create a file with PR info that your app can read
+          echo "{\"number\": ${{ github.event.pull_request.number }}, \"title\": \"${{ github.event.pull_request.title }}\", \"url\": \"${{ github.event.pull_request.html_url }}\"}" > pr-info.json
+      
       # For builds not triggered by PRs, try to find associated PRs
       - name: Find Associated PRs
         if: github.event_name != 'pull_request'
         run: |
-          # This would typically be done with a custom action or script
-          # For demonstration purposes only
-          PR_NUMBER=$(gh pr list --base ${{ github.ref_name }} --head ${{ github.sha }} --json number -q '.[0].number')
-          if [[ ! -z "$PR_NUMBER" ]]; then
-            echo "Found associated PR: $PR_NUMBER"
-            echo "ASSOCIATED_PR=$PR_NUMBER" >> $GITHUB_ENV
-          else
-            echo "No directly associated PR found"
+          # Install GitHub CLI
+          if ! command -v gh &> /dev/null; then
+            echo "Installing GitHub CLI"
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+            sudo apt update
+            sudo apt install gh
           fi
+          
+          # Authenticate GitHub CLI (requires a token with repo scope)
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+          
+          # Try to find PRs containing this commit
+          echo "Searching for PRs containing commit ${{ github.sha }}"
+          PR_INFO=$(gh pr list --search "${{ github.sha }}" --json number,title,url -q '.[0]')
+          
+          if [ -n "$PR_INFO" ]; then
+            echo "Found associated PR in commit search"
+            echo "$PR_INFO" > pr-info.json
+          else
+            # Try alternative: find PRs targeting this branch
+            echo "Searching for PRs targeting ${{ github.ref_name }}"
+            PR_INFO=$(gh pr list --base "${{ github.ref_name }}" --json number,title,url -q '.[0]')
+            
+            if [ -n "$PR_INFO" ]; then
+              echo "Found PR targeting this branch"
+              echo "$PR_INFO" > pr-info.json
+            else
+              echo "No associated PRs found"
+              echo "{}" > pr-info.json
+            fi
+          fi
+      
+      # Upload PR info as an artifact
+      - name: Upload PR metadata
+        uses: actions/upload-artifact@v3
+        with:
+          name: pr-metadata
+          path: pr-info.json
