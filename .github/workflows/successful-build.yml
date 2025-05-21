@@ -1,0 +1,63 @@
+name: Build and Test
+
+# This ensures the workflow runs on PRs and pushes to main
+on:
+  pull_request:
+    branches: [ main, master ]
+  push:
+    branches: [ main, master ]
+  # Optional: Allow manual triggering
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          # This ensures PR metadata is available
+          fetch-depth: 0
+          
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build
+        run: npm run build
+        
+      - name: Test
+        run: npm test
+        
+      # This step outputs PR information when running in a PR context
+      - name: PR Information
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "PR Number: ${{ github.event.pull_request.number }}"
+          echo "PR Title: ${{ github.event.pull_request.title }}"
+          echo "PR Author: ${{ github.event.pull_request.user.login }}"
+          
+      # This step sets PR metadata in the GitHub environment
+      - name: Set PR Metadata
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "ASSOCIATED_PR=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+          
+      # For builds not triggered by PRs, try to find associated PRs
+      - name: Find Associated PRs
+        if: github.event_name != 'pull_request'
+        run: |
+          # This would typically be done with a custom action or script
+          # For demonstration purposes only
+          PR_NUMBER=$(gh pr list --base ${{ github.ref_name }} --head ${{ github.sha }} --json number -q '.[0].number')
+          if [[ ! -z "$PR_NUMBER" ]]; then
+            echo "Found associated PR: $PR_NUMBER"
+            echo "ASSOCIATED_PR=$PR_NUMBER" >> $GITHUB_ENV
+          else
+            echo "No directly associated PR found"
+          fi
