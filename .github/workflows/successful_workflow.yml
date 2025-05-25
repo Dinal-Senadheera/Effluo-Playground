@@ -2,7 +2,7 @@ name: Successful Build Test
 
 on:
   push:
-    branches: [ main ]
+    branches: [ build_failure_test ]
   workflow_dispatch:
 
 jobs:
