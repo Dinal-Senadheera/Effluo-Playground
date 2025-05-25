@@ -70,3 +70,5 @@ class Calculator {
 }
 
 module.exports = Calculator;
+
+//end
