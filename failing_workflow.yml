@@ -1,0 +1,23 @@
+name: Failing Workflow
+
+on:
+  push:
+    branches: [ build_failure_test2 ]
+
+jobs:
+  run-failure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Run Script with Error
+        run: |
+          echo "import { doesNotExist } from './nope.js';" > fail.js
+          echo "console.log(doesNotExist());" >> fail.js
+          node fail.js
