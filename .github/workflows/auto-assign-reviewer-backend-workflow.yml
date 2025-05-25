@@ -15,12 +15,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Assign Pawara-Navojith as a reviewer
+    - name: Assign Navojith as a reviewer
       uses: actions/github-script@v6
       with:
         github-token: ${{ secrets.EFFLUO_PAT }}
         script: |
-          const reviewers = ["Pawara-Navojith"];
+          const reviewers = ["Navojith"];
             const prCreator = context.payload.pull_request.user.login;
 
           // Skip assignment if the PR creator is in the reviewers list
