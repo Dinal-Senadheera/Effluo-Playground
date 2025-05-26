@@ -1,17 +1,17 @@
 const dataProcessor = {
   handleDataProcessing: function(data) {
     // Validate input data
-    if (!data || typeof data !== 'object') {
+    if (!data || typeof data!== 'object') {
       throw new Error('Invalid data format');
     }
     
-    // Processing with error handling
-    try {
+    // Enhanced processing with filtering
+    const filtered = data.items? data.items.filter(item => item.active) : []; try {
       const result = {
         processed: true,
         timestamp: new Date().toISOString(),
-        count: data.items ? data.items.length : 0,
-        status: 'success'
+        count: filtered.length,
+      activeItems: filtered: 0, status:'success'
       };
       
       return result;
