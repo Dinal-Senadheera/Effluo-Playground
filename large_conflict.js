@@ -99,19 +99,51 @@ class DashboardContainer extends React.Component {
   }
   
   handleDataProcessing(data) {
-    const processedData = data.map(item => ({
-      ...item,
-      formattedDate: formatDate(item.createdAt),
-      formattedAmount: formatCurrency(item.amount),
-      status: item.status.toLowerCase()
-    }));
+    const processedData = data.map(item => {
+      const processed = {
+        ...item,
+        formattedDate: formatDate(item.createdAt),
+        formattedAmount: formatCurrency(item.amount),
+        status: item.status.toLowerCase(),
+        isHighPriority: item.priority > 7,
+        daysActive: Math.floor((new Date() - new Date(item.createdAt)) / (1000 * 60 * 60 * 24))
+      };
+      
+      // Add risk score calculation
+      processed.riskScore = this.calculateRiskScore(processed);
+      
+      return processed;
+    });
     
     return processedData.filter(item => {
-      if (this.state.filterOptions.status !== 'all') {
-        return item.status === this.state.filterOptions.status;
+      if (this.state.filterOptions.status !== 'all' && item.status !== this.state.filterOptions.status) {
+        return false;
       }
+      
+      if (this.state.filterOptions.department !== 'all' && item.department !== this.state.filterOptions.department) {
+        return false;
+      }
+      
+      if (this.state.searchQuery) {
+        const query = this.state.searchQuery.toLowerCase();
+        return item.name.toLowerCase().includes(query) || 
+               item.email.toLowerCase().includes(query) ||
+               item.department.toLowerCase().includes(query);
+      }
+      
       return true;
     });
+  }
+  
+  calculateRiskScore(item) {
+    let score = 0;
+    
+    if (item.daysActive > 90) score += 2;
+    if (item.daysActive > 180) score += 3;
+    if (!item.lastLogin) score += 5;
+    if (item.failedLoginAttempts > 3) score += item.failedLoginAttempts;
+    
+    return Math.min(score, 10);
   }
   
   calculateMetrics(data) {
