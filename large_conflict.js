@@ -5,11 +5,13 @@ const dataProcessor = {
       throw new Error('Invalid data format');
     }
     
-    // Process the data
+    // Enhanced processing with filtering
+    const filtered = data.items ? data.items.filter(item => item.active) : [];
     const result = {
       processed: true,
       timestamp: new Date().toISOString(),
-      count: data.items ? data.items.length : 0
+      count: filtered.length,
+      activeItems: filtered
     };
     
     return result;
