@@ -1,6 +1,5 @@
 const dataProcessor = {
   handleDataProcessing: function(data) {
-    // Validate input data
     if (!data || typeof data !== 'object') {
       throw new Error('Invalid data format');
     }
