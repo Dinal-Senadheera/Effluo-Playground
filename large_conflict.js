@@ -98,20 +98,75 @@ class DashboardContainer extends React.Component {
     }
   }
   
-  handleDataProcessing(data) {
-    const processedData = data.map(item => ({
-      ...item,
-      formattedDate: formatDate(item.createdAt),
-      formattedAmount: formatCurrency(item.amount),
-      status: item.status.toLowerCase()
-    }));
+  handleDataProcessing = (data) => {
+    // Using arrow function for cleaner syntax
+    const processedData = data.map(item => {
+      const daysSinceCreation = Math.floor((Date.now() - new Date(item.createdAt).getTime()) / (1000 * 60 * 60 * 24));
+      
+      return {
+        ...item,
+        formattedDate: formatDate(item.createdAt),
+        formattedAmount: formatCurrency(item.amount),
+        status: item.status.toLowerCase(),
+        daysSinceCreation,
+        isStale: daysSinceCreation > 30,
+        priority: this.calculatePriority(item)
+      };
+    });
     
+    // Apply all filters in one pass
     return processedData.filter(item => {
-      if (this.state.filterOptions.status !== 'all') {
-        return item.status === this.state.filterOptions.status;
+      // Status filter
+      if (this.state.filterOptions.status !== 'all' && item.status !== this.state.filterOptions.status) {
+        return false;
       }
+      
+      // Department filter
+      if (this.state.filterOptions.department !== 'all' && item.department !== this.state.filterOptions.department) {
+        return false;
+      }
+      
+      // Date range filter
+      if (!this.isWithinDateRange(item.createdAt, this.state.filterOptions.dateRange)) {
+        return false;
+      }
+      
+      // Search filter
+      if (this.state.searchQuery) {
+        const searchFields = [item.name, item.email, item.department, item.role].join(' ').toLowerCase();
+        return searchFields.includes(this.state.searchQuery.toLowerCase());
+      }
+      
       return true;
     });
+  }
+  
+  calculatePriority = (item) => {
+    let priority = 0;
+    
+    if (item.amount > 10000) priority += 3;
+    if (item.status === 'urgent') priority += 5;
+    if (item.dueDate && new Date(item.dueDate) < new Date()) priority += 2;
+    
+    return Math.min(priority, 10);
+  }
+  
+  isWithinDateRange = (date, range) => {
+    const itemDate = new Date(date);
+    const now = new Date();
+    
+    switch(range) {
+      case 'today':
+        return itemDate.toDateString() === now.toDateString();
+      case 'last7days':
+        return itemDate >= new Date(now.setDate(now.getDate() - 7));
+      case 'last30days':
+        return itemDate >= new Date(now.setDate(now.getDate() - 30));
+      case 'last90days':
+        return itemDate >= new Date(now.setDate(now.getDate() - 90));
+      default:
+        return true;
+    }
   }
   
   calculateMetrics(data) {
