@@ -5,22 +5,15 @@ const dataProcessor = {
       throw new Error('Invalid data format');
     }
     
-    // Processing with error handling
-    try {
-      const result = {
-        processed: true,
-        timestamp: new Date().toISOString(),
-        count: data.items ? data.items.length : 0,
-        status: 'success'
-      };
-      
-      return result;
-    } catch (error) {
-      return {
-        processed: false,
-        error: error.message,
-        status: 'failed'
-      };
-    }
+    // Enhanced processing with filtering
+    const filtered = data.items ? data.items.filter(item => item.active) : [];
+    const result = {
+      processed: true,
+      timestamp: new Date().toISOString(),
+      count: filtered.length,
+      activeItems: filtered
+    };
+    
+    return result;
   }
 };
