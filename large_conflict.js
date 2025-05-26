@@ -17,3 +17,5 @@ const dataProcessor = {
     return result;
   }
 };
+
+module.exports = dataProcessor;
