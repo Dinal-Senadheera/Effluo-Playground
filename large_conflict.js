@@ -24,3 +24,5 @@ const dataProcessor = {
     }
   }
 };
+
+module.exports = dataProcessor;
