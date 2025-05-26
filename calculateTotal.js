@@ -1,5 +1,5 @@
-function calculateTotal(price, quantity, discount) {
-    return price * quantity * discount;
+function calculateTotal(price, quantity) {
+    return price * quantity;
   }
   
   module.exports = { calculateTotal };
