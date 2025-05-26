@@ -1,4 +1,4 @@
-y = 11;
+y = 12;
 z = 9;
-let x = max(y, z, 16);
+let x = max(y, 18, 16, z, 16);
 console.log(x);
