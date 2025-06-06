@@ -65,7 +65,15 @@ class ProductService {
    * @returns {number} - Final price with tax
    */
   calculatePrice(basePrice) {
-    return basePrice * (1 + this.taxRate);
+    const taxAmount = basePrice * this.taxRate;
+    const finalPrice = basePrice + taxAmount;
+    
+    return {
+      basePrice,
+      taxAmount,
+      finalPrice,
+      formattedPrice: `$${finalPrice.toFixed(2)}`
+    };
   }
 
   /**
@@ -80,15 +88,12 @@ class ProductService {
       return null;
     }
     
-    const basePrice = product.price;
-    const finalPrice = this.calculatePrice(basePrice);
+    const priceDetails = this.calculatePrice(product.price);
     
     return {
       productId: product.id,
       name: product.name,
-      basePrice,
-      tax: basePrice * this.taxRate,
-      finalPrice
+      ...priceDetails
     };
   }
 
