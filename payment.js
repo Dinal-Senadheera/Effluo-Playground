@@ -1,4 +1,3 @@
-// payment.js - Base Version
 class PaymentProcessor {
   constructor() {
     this.fees = {
